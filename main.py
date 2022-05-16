@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from fastapi import FastAPI
 
@@ -12,7 +14,7 @@ from shared_objects import cross_encoder, question_answer_model, question_answer
 app = FastAPI()
 
 
-def answer_question(question: str, context: Document, score: float) -> AnswerQuestionResponse:
+def answer_question(question: str, context: Document, score: float) -> Optional[AnswerQuestionResponse]:
     inputs = question_answer_tokenizer(
         question,
         context.text,
@@ -25,12 +27,21 @@ def answer_question(question: str, context: Document, score: float) -> AnswerQue
     answer_start_scores = outputs.start_logits
     answer_end_scores = outputs.end_logits
 
+    #
     # Get the most likely beginning of answer with the argmax of the score
+    #
     answer_start = torch.argmax(answer_start_scores)
+
+    #
     # Get the most likely end of answer with the argmax of the score
+    #
     answer_end = torch.argmax(answer_end_scores) + 1
 
-    answer_as_tokens = question_answer_tokenizer.convert_ids_to_tokens(input_ids[answer_start:answer_end])
+    answer_as_tokens = question_answer_tokenizer.convert_ids_to_tokens(
+        input_ids[answer_start:answer_end]
+    )
+    if answer_end <= answer_start or answer_end is None or answer_start is None:
+        return None
 
     #
     # create a tag that wraps around the answer as highlight
@@ -83,9 +94,11 @@ def semantic_search(request: SemanticSearchRequest) -> SemanticSearchResponse:
     #
     top_5_cross_encode_output = cross_encode_outputs[:5]
 
+    all_answers = [answer_question(question=question, context=candidate.document, score=candidate.score) for candidate
+                   in
+                   top_5_cross_encode_output
+                   ]
+    answer_candidates = [answer for answer in all_answers if answer is not None]
     return SemanticSearchResponse(
-        answer_candidates=[
-            answer_question(question=question, context=candidate.document, score=candidate.score)
-            for candidate in top_5_cross_encode_output
-        ]
+        answer_candidates=answer_candidates
     )
