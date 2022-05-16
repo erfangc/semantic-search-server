@@ -12,7 +12,7 @@ from shared_objects import cross_encoder, question_answer_model, question_answer
 app = FastAPI()
 
 
-def answer_question(question: str, context: Document) -> AnswerQuestionResponse:
+def answer_question(question: str, context: Document, score: float) -> AnswerQuestionResponse:
     inputs = question_answer_tokenizer(
         question,
         context.text,
@@ -38,13 +38,15 @@ def answer_question(question: str, context: Document) -> AnswerQuestionResponse:
     input_as_tokens = question_answer_tokenizer.convert_ids_to_tokens(input_ids)
     answer_text = question_answer_tokenizer.convert_tokens_to_string(answer_as_tokens)
     answer_length = answer_end - answer_start
-    input_as_tokens.insert(answer_start, "<em>")
-    input_as_tokens.insert(answer_end + answer_length + 1, "</em>")
-    answer_highlighted = input_as_tokens
+    input_as_tokens.insert(answer_start, "[START]")
+    input_as_tokens.insert(answer_end + answer_length + 1, "[END]")
+    answer_highlighted = question_answer_tokenizer.convert_tokens_to_string(input_as_tokens)
 
     return AnswerQuestionResponse(
         answer_text=answer_text,
         answer_highlighted=answer_highlighted,
+        document=context,
+        score=score
     )
 
 
@@ -62,7 +64,7 @@ def cross_encode(cross_encode_input: CrossEncodeInput) -> list[CrossEncodeOutput
 
 
 @app.post(
-    path="/semantic-search",
+    path="/semantic-search-server/api/v1/semantic-search",
     operation_id="semantic_search",
     tags=["semantic-search"],
     response_model=SemanticSearchResponse
@@ -83,6 +85,7 @@ def semantic_search(request: SemanticSearchRequest) -> SemanticSearchResponse:
 
     return SemanticSearchResponse(
         answer_candidates=[
-            answer_question(question=question, context=candidate.document) for candidate in top_5_cross_encode_output
+            answer_question(question=question, context=candidate.document, score=candidate.score)
+            for candidate in top_5_cross_encode_output
         ]
     )

@@ -9,7 +9,8 @@ class Document(BaseModel):
 
 class AnswerQuestionResponse(BaseModel):
     answer_text: str
-    answer_highlighted: list[str]
+    answer_highlighted: str
+    score: float
     document: Document
 
 
