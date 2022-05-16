@@ -1,0 +1,8 @@
+from sentence_transformers import CrossEncoder
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+
+from download_pretrained_models import cross_encoder_model_name, question_answer_model_name
+
+cross_encoder = CrossEncoder(cross_encoder_model_name)
+question_answer_tokenizer = AutoTokenizer.from_pretrained(question_answer_model_name)
+question_answer_model = AutoModelForQuestionAnswering.from_pretrained(question_answer_model_name)
