@@ -20,9 +20,9 @@ query = ['use artificial intelligence to analyze customer behavior']
 comparison_embeddings = model.encode(comparisons, convert_to_tensor=True)
 query_embeddings = model.encode(query, convert_to_tensor=True)
 
-#
-# cos_sim
-#
+# -----------------------
+# |  cosine similarity
+# -----------------------
 cosine_scores = util.cos_sim(
     comparison_embeddings,
     query_embeddings,
