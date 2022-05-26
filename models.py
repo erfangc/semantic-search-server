@@ -1,3 +1,4 @@
+import pydantic
 from pydantic import BaseModel
 
 
@@ -5,6 +6,15 @@ class Document(BaseModel):
     id: str
     text: str
     metadata: dict
+
+
+class SingleSemanticSimilarityResponse(BaseModel):
+    document: Document
+    score: float
+
+
+class SemanticSimilarityResponse(BaseModel):
+    results: list[SingleSemanticSimilarityResponse]
 
 
 class AnswerQuestionResponse(BaseModel):
@@ -31,3 +41,8 @@ class CrossEncodeOutput(BaseModel):
 class CrossEncodeInput(BaseModel):
     reference: str
     comparisons: list[Document]
+
+
+class SemanticSimilarityRequest(BaseModel):
+    documents: list[Document]
+    query: str
