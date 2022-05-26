@@ -43,8 +43,9 @@ def get_sentence_score(text: str, query: str) -> float:
 def semantic_similarity(request: SemanticSimilarityRequest) -> SemanticSimilarityResponse:
     query = request.query
     results = [
-        single_semantic_similarity_response(score=get_sentence_score(doc.text, query), document=doc) for doc in
-        request.documents]
+        single_semantic_similarity_response(score=get_sentence_score(doc.text, query), document=doc)
+        for doc in request.documents
+    ]
     ret = SemanticSimilarityResponse()
     ret.results = results
     return ret
