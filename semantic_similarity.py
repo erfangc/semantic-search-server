@@ -26,7 +26,7 @@ def get_sentence_score(text: str, query: str) -> float:
 
     for i in range(len(comparisons)):
         for j in range(len(query)):
-            print("{} Score: {:.4f}".format(comparisons[i], cosine_scores[i][j]))
+            print("{} score: {:.4f}".format(comparisons[i], cosine_scores[i][j]))
 
     # -----------------------------------------------
     # filter out any sentences < 0.4 and sum the rest
