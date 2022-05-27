@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from models import SemanticSearchResponse, SemanticSearchRequest, SemanticSimilarityRequest, SemanticSimilarityResponse
 from semantic_search import semantic_search
+from semantic_similarity import semantic_similarity
 
 app = FastAPI()
 
